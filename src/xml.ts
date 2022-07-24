@@ -136,6 +136,17 @@ const getEntries = (element: Element): BlogEntry[] => {
   return getElementsByTagName(element, "entry").map((entry) => getEntry(entry));
 };
 
+const getNextPageUrl = (element: Element): string | null => {
+  const nextLink = element.children.find(
+    (i): i is Element =>
+      isElement(i) && i.name === "link" && i.attributes["rel"] === "next"
+  );
+  if (!nextLink) {
+    return null;
+  }
+  return nextLink.attributes["href"];
+};
+
 const toXml = (i: BlogEntryParams): Document => {
   const { categories, content, contentType, draft, title, updated } = i;
   const h = createElement;
@@ -165,4 +176,4 @@ const toXml = (i: BlogEntryParams): Document => {
   );
 };
 
-export { getEntries, getEntry, toXml };
+export { getEntries, getEntry, getNextPageUrl, toXml };

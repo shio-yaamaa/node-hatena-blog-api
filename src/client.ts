@@ -12,7 +12,7 @@ import {
   putMember,
 } from "./atom-pub";
 import { BlogEntry, BlogEntryParams } from "./blog-type";
-import { getEntries, getEntry, toXml } from "./xml";
+import { getEntries, getEntry, getNextPageUrl, toXml } from "./xml";
 
 type Credentials = BasicAuthCredentials | OAuthCredentials | WSSECredentials;
 
@@ -163,6 +163,24 @@ class Client {
       collectionUri + (typeof page === "undefined" ? "" : "?page=" + page)
     );
     return getEntries(responseXml.rootElement);
+  }
+
+  // Almost the same as list(), but returns the next page identifier for pagination
+  public async listSinglePage(
+    page?: string
+  ): Promise<{ entries: BlogEntry[]; nextPage: string | null }> {
+    const collectionUri = await this._ensureCollectionUri();
+    const responseXml = await getCollection(
+      authorizedRequest(this._credentials),
+      collectionUri + (typeof page === "undefined" ? "" : "?page=" + page)
+    );
+    const nextPageUrl = getNextPageUrl(responseXml.rootElement);
+    return {
+      entries: getEntries(responseXml.rootElement),
+      nextPage: nextPageUrl
+        ? new URL(nextPageUrl).searchParams.get("page")
+        : null,
+    };
   }
 
   public async retrieve(memberUrl: BlogEntry["editUrl"]): Promise<BlogEntry> {
