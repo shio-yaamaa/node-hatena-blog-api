@@ -19,6 +19,11 @@ const main = async (): Promise<void> => {
   console.log("listed");
   console.log(entries);
 
+  const listSinglePageResponse = await client.listSinglePage();
+  console.log("listed (single page)");
+  console.log(listSinglePageResponse.entries);
+  console.log("next page", listSinglePageResponse.nextPage);
+
   const created = await client.create({
     categories: ["category1"],
     content: [
